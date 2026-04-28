@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: billwise-api
+  profiles:
+    active: dev
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/billwise}
+    username: ${DB_USERNAME:billwise}
+    password: ${DB_PASSWORD:billwise}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      expiration: 86400000
