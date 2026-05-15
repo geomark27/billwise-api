@@ -1,8 +1,4 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/billwise_dev
-    username: billwise
-    password: billwise
   jpa:
     show-sql: true
   flyway:

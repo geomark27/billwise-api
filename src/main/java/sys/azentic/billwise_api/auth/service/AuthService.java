@@ -11,6 +11,7 @@ import sys.azentic.billwise_api.auth.dto.LoginRequest;
 import sys.azentic.billwise_api.auth.dto.RegisterRequest;
 import sys.azentic.billwise_api.auth.model.RefreshToken;
 import sys.azentic.billwise_api.auth.repository.RefreshTokenRepository;
+import sys.azentic.billwise_api.exception.ResourceNotFoundException;
 import sys.azentic.billwise_api.security.JwtService;
 import sys.azentic.billwise_api.user.model.User;
 import sys.azentic.billwise_api.user.repository.UserRepository;
@@ -71,5 +72,13 @@ public class AuthService {
                 .revoked(false)
                 .build());
         return AuthResponse.of(accessToken, refreshTokenValue);
+    }
+
+    @Transactional
+    public void logout(String tokenValue) {
+        var stored = refreshTokenRepository.findByToken(tokenValue)
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
+        stored.setRevoked(true);
+        refreshTokenRepository.save(stored);
     }
 }

@@ -22,13 +22,10 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .toList();
         return ApiError.builder()
-                .status(400)
-                .error("Validation Failed")
+                .status(400).error("Validation failed")
                 .message("One or more fields are invalid")
-                .path(req.getRequestURI())
-                .timestamp(Instant.now())
-                .details(details)
-                .build();
+                .path(req.getRequestURI()).timestamp(Instant.now())
+                .details(details).build();
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -41,6 +38,26 @@ public class GlobalExceptionHandler {
                 .path(req.getRequestURI())
                 .timestamp(Instant.now())
                 .build();
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
+        return ApiError.builder()
+                .status(404).error("Not found")
+                .message(ex.getMessage())
+                .path(req.getRequestURI())
+                .timestamp(Instant.now()).build();
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflict(ResourceNotFoundException ex, HttpServletRequest req) {
+        return ApiError.builder()
+                .status(409).error("Conflict")
+                .message(ex.getMessage())
+                .path(req.getRequestURI())
+                .timestamp(Instant.now()).build();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
