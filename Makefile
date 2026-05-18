@@ -13,7 +13,8 @@
 # ============================================================
 COMPOSE    = docker compose --env-file .env
 DB_NAME    = $(shell grep ^DB_NAME .env 2>/dev/null | cut -d= -f2 | tr -d ' ' || echo billwise_dev)
-DB_USER    = $(shell grep ^DB_USER .env 2>/dev/null | cut -d= -f2 | tr -d ' ' || echo postgres)
+DB_USER    = $(shell grep ^DB_USER .env 2>/dev/null | cut -d= -f2 | tr -d ' ' || echo billwise)
+DB_PORT    = $(shell grep ^DB_PORT .env 2>/dev/null | cut -d= -f2 | tr -d ' ' || echo 5432)
 BRANCH     = $(shell git branch --show-current 2>/dev/null || echo main)
 EXPORT_ENV = export $$(grep -v '^\#' .env | grep -v '^\s*$$' | xargs) &&
 
@@ -63,7 +64,7 @@ help:
 	@echo "  $(YELLOW)make compile$(NC)           - Compilar sin tests"
 	@echo "  $(YELLOW)make package$(NC)           - Generar JAR"
 	@echo "  $(YELLOW)make install$(NC)           - Instalar en repo Maven local"
-	@echo "  $(YELLOW)make ci$(NC)                - compile + test + package"
+	@echo "  $(YELLOW)make ci$(NC)               - compile + test + package"
 	@echo ""
 	@echo "$(GREEN)LIMPIEZA:$(NC)"
 	@echo "  $(YELLOW)make clean$(NC)             - Limpiar archivos Maven"
@@ -94,7 +95,7 @@ setup:
 	@echo "$(YELLOW)Paso 1/4:$(NC) Verificando archivo .env..."
 	@test -f .env || ( \
 		echo "$(RED)ERROR: .env no encontrado$(NC)" && \
-		echo "$(YELLOW)Ejecuta: cp .env.example .env y configúralo$(NC)" && \
+		echo "$(YELLOW)Ejecuta: cp .env.example .env$(NC)" && \
 		exit 1 \
 	)
 	@echo "$(GREEN)  OK .env existe$(NC)"
@@ -127,7 +128,7 @@ setup:
 db-up:
 	@echo "$(GREEN)Levantando PostgreSQL...$(NC)"
 	@$(COMPOSE) up -d postgres
-	@echo "$(GREEN)OK PostgreSQL corriendo en localhost:$(shell grep ^DB_PORT .env 2>/dev/null | cut -d= -f2 || echo 5433) (DB: $(DB_NAME))$(NC)"
+	@echo "$(GREEN)OK PostgreSQL corriendo en localhost:$(DB_PORT) (DB: $(DB_NAME))$(NC)"
 
 db-down:
 	@echo "$(YELLOW)Deteniendo servicios...$(NC)"
@@ -141,7 +142,7 @@ db-clean:
 
 db-logs:
 	@echo "$(BLUE)Logs en tiempo real (Ctrl+C para salir):$(NC)"
-	@$(COMPOSE) logs -f
+	@$(COMPOSE) logs -f postgres
 
 restart:
 	@echo "$(YELLOW)Reiniciando servicios...$(NC)"
@@ -242,7 +243,7 @@ clean:
 clean-all:
 	@echo "$(RED)Limpieza profunda del proyecto...$(NC)"
 	@./mvnw clean
-	@rm -rf ~/.m2/repository/com/billwise/billwise-api
+	@rm -rf ~/.m2/repository/sys/azentic/billwise-api
 	@rm -rf target/
 	@echo "$(GREEN)OK Limpieza profunda completada$(NC)"
 
